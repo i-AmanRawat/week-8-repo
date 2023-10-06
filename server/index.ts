@@ -18,5 +18,5 @@ app.listen(port, () => {
 
 mongoose.connect(
   "mongodb+srv://amanrawat9690:1OrKGoXfozOszSHz@cluster0.grdmre6.mongodb.net/todoApp",
-  { dbName: "courses" }
+  { dbName: "todoApp" }
 );

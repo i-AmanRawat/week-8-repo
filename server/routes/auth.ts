@@ -2,24 +2,33 @@ import jwt from "jsonwebtoken";
 import express from "express";
 import { authenticateJwt, SECRET } from "../middleware/";
 import { User } from "../db";
+import { ParseStatus, z } from "zod";
 
 const router = express.Router();
 
+const userInput = z.object({
+  username: z
+    .string()
+    .email({
+      message: "Invalid email. Please enter a valid email address",
+    })
+    .min(1)
+    .max(15)
+    .trim(),
+  password: z.string().min(6).max(15),
+});
+
 router.post("/signup", async (req, res) => {
-  const { username, password } = req.body;
-  if (typeof username !== "string") {
-    res
-      .status(411)
-      .json({ message: "You send wrong input, username should be string" });
-    // return;
+  const parsedUserData = userInput.safeParse(req.body);
+  // const { username, password } = req.body;
+
+  if (!parsedUserData.success) {
+    res.status(411).json({ message: parsedUserData.error });
+    return;
   }
 
-  if (typeof password !== "string") {
-    res
-      .status(411)
-      .json({ message: "You send wrong input, password should be string" });
-    // return;
-  }
+  const username = parsedUserData.data.username;
+  const password = parsedUserData.data.password;
 
   const user = await User.findOne({ username });
   if (user) {
@@ -33,7 +42,16 @@ router.post("/signup", async (req, res) => {
 });
 
 router.post("/login", async (req, res) => {
-  const { username, password } = req.body;
+  const parsedUserData = userInput.safeParse(req.body);
+  // const { username, password } = req.body;
+  if (!parsedUserData.success) {
+    res.status(411).json({ message: parsedUserData.error });
+    return;
+  }
+
+  const username = parsedUserData.data.username;
+  const password = parsedUserData.data.password;
+
   const user = await User.findOne({ username, password });
   if (user) {
     const token = jwt.sign({ id: user._id }, SECRET, { expiresIn: "1h" });
