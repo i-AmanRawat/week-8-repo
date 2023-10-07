@@ -1,22 +1,12 @@
 import express from "express";
 import { authenticateJwt, SECRET } from "../middleware/index";
 import { Todo } from "../db";
-import { string, z } from "zod";
+import { todoInput } from "@i-amanrawat/common";
 
 const router = express.Router();
 
-interface CreateTodoInput {
-  title: string;
-  description: string;
-}
-
-const todoInputValidation = z.object({
-  title: z.string().min(1),
-  description: z.string().min(1),
-});
-
 router.post("/todos", authenticateJwt, (req, res) => {
-  const parsedInput = todoInputValidation.safeParse(req.body);
+  const parsedInput = todoInput.safeParse(req.body);
   const userId = req.headers["userId"];
 
   if (!parsedInput.success) {

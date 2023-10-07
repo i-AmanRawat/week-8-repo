@@ -1,6 +1,7 @@
 import React, { useContext, useState, useEffect } from "react";
 import { authState } from "../store/authState.js";
 import { useRecoilValue } from "recoil";
+import { TodoInput } from "@i-amanrawat/common";
 
 interface Todo {
   _id: string;
@@ -30,13 +31,14 @@ const TodoList = () => {
   }, []);
 
   const addTodo = async () => {
+    const todoInput: TodoInput = { title, description };
     const response = await fetch("http://localhost:3000/todo/todos", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${localStorage.getItem("token")}`,
       },
-      body: JSON.stringify({ title, description }),
+      body: JSON.stringify(todoInput),
     });
     const data = await response.json();
 
